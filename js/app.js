@@ -103,6 +103,18 @@ function warehouseApp() {
             output_quantity: 1,
             components: []
         },
+
+        // ========== Отчёт о продажах ==========
+        salesPeriod: {
+            from: '',
+            to: '',
+            counterparty_id: '',
+            documents: [],
+            details: [],
+            totalRevenue: 0,
+            totalCogs: 0,
+            totalProfit: 0
+        },
         
         // Меню навигации
         menus: [
@@ -116,7 +128,8 @@ function warehouseApp() {
             { id: 'incoming', name: 'Приход', icon: 'fas fa-download', badge: false },
             { id: 'outgoing', name: 'Отгрузка', icon: 'fas fa-upload', badge: false },
             { id: 'assembly', name: 'Сборка', icon: 'fas fa-cogs', badge: false },
-            { id: 'cogs', name: 'Себестоимость', icon: 'fas fa-coins', badge: false },
+            // { id: 'cogs', name: 'Себестоимость', icon: 'fas fa-coins', badge: false },
+            { id: 'sales', name: 'Продажи', icon: 'fas fa-chart-line', badge: false }, 
             { id: 'alerts', name: 'Уведомления', icon: 'fas fa-bell', badge: false }
         ],
         
@@ -242,8 +255,11 @@ function warehouseApp() {
             if (pageId === 'movements') {
                 await this.loadMovements();
             }
-            if (pageId === 'cogs') {
-                await this.loadCOGS();
+            // if (pageId === 'cogs') {
+            //     await this.loadCOGS();
+            // }
+            if (pageId === 'sales') {
+                await this.loadSalesReport();
             }
         },
         
@@ -712,6 +728,74 @@ function warehouseApp() {
             } catch (error) {
                 console.error('Resolve alert error:', error);
                 alert('❌ Ошибка при закрытии уведомления');
+            }
+        },
+
+        // ========== ОТЧЁТ О ПРОДАЖАХ ==========
+        async loadSalesReport() {
+            console.log('📊 Загрузка отчёта о продажах...');
+            
+            try {
+                let data = await API.getCOGS(this.salesPeriod.from, this.salesPeriod.to);
+                console.log('Sales API response:', data);
+                
+                if (!Array.isArray(data)) {
+                    data = [];
+                }
+                
+                // Фильтрация по контрагенту (если выбран)
+                let filteredData = data;
+                if (this.salesPeriod.counterparty_id) {
+                    filteredData = data.filter(doc => doc.counterparty_id == this.salesPeriod.counterparty_id);
+                }
+                
+                // Подготовка данных
+                const details = [];
+                let totalRevenue = 0;
+                let totalCogs = 0;
+                let totalProfit = 0;
+                
+                for (const doc of filteredData) {
+                    for (const item of doc.items) {
+                        const detailItem = {
+                            id: Math.random(),
+                            document_id: doc.document_id,
+                            date: doc.date,
+                            counterparty_id: doc.counterparty_id,
+                            counterparty_name: doc.counterparty_name,
+                            product_id: item.product_id,
+                            product_name: item.product_name,
+                            product_unit: item.product_unit,
+                            quantity: item.quantity,
+                            selling_price: item.selling_price,
+                            unit_cost: item.unit_cost,
+                            revenue: item.revenue,
+                            cogs: item.cogs,
+                            profit: item.profit
+                        };
+                        details.push(detailItem);
+                        
+                        totalRevenue += item.revenue;
+                        totalCogs += item.cogs;
+                        totalProfit += item.profit;
+                    }
+                }
+                
+                this.salesPeriod.documents = filteredData;
+                this.salesPeriod.details = details;
+                this.salesPeriod.totalRevenue = totalRevenue;
+                this.salesPeriod.totalCogs = totalCogs;
+                this.salesPeriod.totalProfit = totalProfit;
+                
+                console.log(`📊 Выручка: ${totalRevenue} ₽, Прибыль: ${totalProfit} ₽`);
+            } catch (error) {
+                console.error('Sales report error:', error);
+                this.salesPeriod.documents = [];
+                this.salesPeriod.details = [];
+                this.salesPeriod.totalRevenue = 0;
+                this.salesPeriod.totalCogs = 0;
+                this.salesPeriod.totalProfit = 0;
+                alert('❌ Ошибка при загрузке отчёта о продажах');
             }
         },
         
