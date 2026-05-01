@@ -1,0 +1,32 @@
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden fade-in">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-white">
+            <h2 class="text-2xl font-bold text-gray-800">🔔 Уведомления о низких остатках</h2>
+            <p class="text-sm text-gray-500 mt-1">Товары, требующие пополнения</p>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            <template x-for="alert in alerts" :key="alert.id">
+                <div class="p-4 flex justify-between items-center hover:bg-gray-50 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="text-yellow-500 mt-0.5">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-800" x-text="alert.message"></div>
+                            <div class="text-xs text-gray-400 mt-1" x-text="formatDate(alert.created_at)"></div>
+                        </div>
+                    </div>
+                    <button @click="resolveAlert(alert.id)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1">
+                        <i class="fas fa-check"></i> Закрыть
+                    </button>
+                </div>
+            </template>
+            
+            <div x-show="alerts.length === 0" class="p-12 text-center text-gray-400">
+                <i class="fas fa-check-circle text-4xl mb-3 text-green-300"></i>
+                <p>Все остатки в норме. Уведомлений нет.</p>
+            </div>
+        </div>
+    </div>
+</div>

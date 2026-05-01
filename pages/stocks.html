@@ -1,0 +1,42 @@
+<div class="bg-white rounded-xl shadow-lg overflow-hidden fade-in">
+    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+        <h2 class="text-2xl font-bold text-gray-800">📊 Текущие остатки</h2>
+        <p class="text-sm text-gray-500 mt-1">Актуальное количество товаров на складах</p>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Товар</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Склад</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Остаток</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ед. изм.</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <template x-for="stock in stocks" :key="stock.product_id + '-' + stock.warehouse_id">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900" x-text="stock.product_name"></td>
+                        <td class="px-6 py-4 text-sm text-gray-600" x-text="stock.warehouse_name"></td>
+                        <td class="px-6 py-4 text-sm text-right font-mono font-bold" 
+                            :class="stock.quantity < (products.find(p => p.id == stock.product_id)?.min_stock || 0) ? 'text-red-600' : 'text-gray-900'"
+                            x-text="formatNumber(stock.quantity)"></td>
+                        <td class="px-6 py-4 text-sm text-gray-600" x-text="stock.product_unit"></td>
+                        <td class="px-6 py-4 text-sm">
+                            <span x-show="stock.quantity <= (products.find(p => p.id == stock.product_id)?.min_stock || 0)" 
+                                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> Низкий остаток
+                            </span>
+                            <span x-show="stock.quantity > (products.find(p => p.id == stock.product_id)?.min_stock || 0)" 
+                                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle mr-1"></i> Норма
+                            </span>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden fade-in">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
+            <h2 class="text-2xl font-bold text-gray-800">📥 Приход товара</h2>
+            <p class="text-sm text-gray-500 mt-1">Поступление товаров на склад</p>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Склад *</label>
+                <select x-model="incomingForm.warehouse_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
+                    <option value="">Выберите склад</option>
+                    <template x-for="wh in warehouses">
+                        <option :value="wh.id" x-text="wh.name"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Товар *</label>
+                <select x-model="incomingForm.product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
+                    <option value="">Выберите товар</option>
+                    <template x-for="p in products">
+                        <option :value="p.id" x-text="p.name + ' (' + (p.unit || '') + ')'"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Количество *</label>
+                    <input type="number" x-model="incomingForm.quantity" step="any" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Цена закупки (₽)</label>
+                    <input type="number" x-model="incomingForm.price" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Поставщик</label>
+                <select x-model="incomingForm.counterparty_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
+                    <option value="">Не выбран</option>
+                    <template x-for="cp in counterparties.filter(c => c.role === 'supplier')">
+                        <option :value="cp.id" x-text="cp.name"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div class="pt-4">
+                <button @click="submitIncoming" :disabled="!incomingForm.warehouse_id || !incomingForm.product_id || !incomingForm.quantity"
+                        class="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2">
+                    <i class="fas fa-check-circle"></i> Оформить приход
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
