@@ -1,10 +1,11 @@
 /* Кастомные стили */
 
-/* Плавные анимации */
+/* Alpine.js - скрыть элементы до инициализации */
 [x-cloak] {
     display: none !important;
 }
 
+/* Плавные анимации для страниц */
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
@@ -78,55 +79,6 @@
     transition: background-color 0.2s;
 }
 
-/* Анимации для динамического контента */
-[x-cloak] {
-    display: none !important;
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.hover-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-}
-
-/* Кастомный скроллбар */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #c7d2fe;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #818cf8;
-}
-
 /* Анимация загрузки */
 @keyframes spin {
     to { transform: rotate(360deg); }
@@ -136,12 +88,34 @@
     animation: spin 1s linear infinite;
 }
 
-/* Уведомления */
-.badge-pulse {
-    animation: pulse 2s infinite;
+/* ========== МОДАЛЬНЫЕ ОКНА ========== */
+/* Убираем конфликтующие стили для .fixed */
+/* Не переопределяем .fixed, используем стандартные классы Tailwind */
+
+/* Анимация для модалки */
+.modal-animation {
+    animation: modalFadeIn 0.2s ease-out;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Дополнительно: затемнение фона */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+/* Стили для формы в модалке */
+.modal-input:focus {
+    outline: none;
+    ring: 2px solid #6366f1;
 }

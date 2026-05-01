@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Складской учёт | FIFO + Assembly</title>
+    <title>Складской учёт</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -14,10 +14,10 @@
 
 <div x-data="warehouseApp()" x-init="init()" x-cloak class="flex h-screen">
     <!-- Sidebar -->
-    <div class="w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 text-white flex flex-col shadow-xl z-10">
+    <div class="w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 text-white flex flex-col shadow-xl z-10 relative">
         <div class="p-5 text-xl font-bold border-b border-indigo-700 flex items-center gap-2">
             <i class="fas fa-boxes"></i>
-            <span>FIFO Склад</span>
+            <span>Склад</span>
         </div>
         
         <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -33,10 +33,11 @@
             </template>
         </nav>
         
-        <!-- <div class="p-4 text-xs border-t border-indigo-700 space-y-2">
+        <!-- Статус бар в сайдбаре (как был раньше)
+        <div class="p-4 text-xs border-t border-indigo-700 space-y-2">
             <div class="flex justify-between">
                 <span class="text-indigo-300">Сервер:</span>
-                <span class="font-mono text-indigo-200 truncate" x-text="baseUrl"></span>
+                <span class="font-mono text-indigo-200 truncate" x-text="API.baseUrl"></span>
             </div>
             <div class="flex justify-between">
                 <span class="text-indigo-300">Статус:</span>
@@ -52,24 +53,240 @@
     </div>
 
     <!-- Контейнер для динамических страниц -->
-    <div class="flex-1 overflow-y-auto bg-gray-50" id="page-container">
+    <div class="flex-1 overflow-y-auto bg-gray-50 relative">
         <div class="max-w-7xl mx-auto p-6" x-html="currentPageContent"></div>
     </div>
-</div>
-
-<!-- Модальные окна -->
-<div x-show="productModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
-     x-cloak @click.away="productModalOpen = false">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-        <h3 class="text-xl font-bold mb-4" x-text="editingProduct ? '✏️ Редактировать товар' : '➕ Новый товар'"></h3>
-        <div class="space-y-3">
-            <input type="text" x-model="productForm.name" placeholder="Название товара" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500">
-            <input type="text" x-model="productForm.unit" placeholder="Единица измерения (кг, шт, л)" class="w-full border border-gray-300 rounded-lg p-2">
-            <input type="number" x-model="productForm.min_stock" placeholder="Минимальный остаток" class="w-full border border-gray-300 rounded-lg p-2">
+    
+    <!-- Модалка - в самом конце, но внутри корневого элемента -->
+    <div x-show="productModalOpen"
+         x-transition.opacity
+         class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center"
+         @click.away="productModalOpen = false"
+         style="display: none;">
+        
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 mx-4" @click.stop>
+            <h3 class="text-xl font-bold mb-4" x-text="editingProduct ? '✏️ Редактировать товар' : '➕ Новый товар'"></h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Название товара *</label>
+                    <input type="text" x-model="productForm.name" placeholder="Например: Мука" 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Единица измерения</label>
+                    <input type="text" x-model="productForm.unit" placeholder="шт, кг, л, м" 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Минимальный остаток</label>
+                    <input type="number" x-model.number="productForm.min_stock" placeholder="0" 
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button @click="saveProduct" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition">
+                    <i class="fas fa-save mr-2"></i> Сохранить
+                </button>
+                <button @click="productModalOpen = false" class="flex-1 border border-gray-300 hover:bg-gray-50 font-medium py-2 rounded-lg transition">
+                    Отмена
+                </button>
+            </div>
         </div>
-        <div class="flex gap-3 mt-6">
-            <button @click="saveProduct" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">Сохранить</button>
-            <button @click="productModalOpen = false" class="flex-1 border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition">Отмена</button>
+    </div>
+
+    <!-- Модалка для складов -->
+    <div x-show="warehouseModalOpen"
+        x-transition.opacity
+        class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center"
+        @click.away="warehouseModalOpen = false"
+        style="display: none;">
+        
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 mx-4" @click.stop>
+            <h3 class="text-xl font-bold mb-4" x-text="editingWarehouse ? '✏️ Редактировать склад' : '➕ Новый склад'"></h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Название склада *</label>
+                    <input type="text" 
+                        x-model="warehouseForm.name" 
+                        placeholder="Например: Основной склад" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Адрес</label>
+                    <input type="text" 
+                        x-model="warehouseForm.address" 
+                        placeholder="г. Москва, ул. Ленина, д. 1" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-xs text-gray-500 mt-1">Полный адрес склада (необязательно)</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button @click="saveWarehouse" 
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition">
+                    <i class="fas fa-save mr-2"></i> Сохранить
+                </button>
+                <button @click="warehouseModalOpen = false" 
+                        class="flex-1 border border-gray-300 hover:bg-gray-50 font-medium py-2 rounded-lg transition">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка для контрагентов -->
+    <div x-show="counterpartyModalOpen"
+        x-transition.opacity
+        class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center"
+        @click.away="counterpartyModalOpen = false"
+        style="display: none;">
+        
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 mx-4" @click.stop>
+            <h3 class="text-xl font-bold mb-4" x-text="editingCounterparty ? '✏️ Редактировать контрагента' : '➕ Новый контрагент'"></h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Название *</label>
+                    <input type="text" 
+                        x-model="counterpartyForm.name" 
+                        placeholder="Например: ООО Поставщик" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Роль *</label>
+                    <div class="flex gap-4 mt-1">
+                        <label class="flex items-center gap-2">
+                            <input type="radio" x-model="counterpartyForm.role" value="supplier" class="w-4 h-4 text-indigo-600">
+                            <span class="text-sm text-gray-700">📦 Поставщик</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" x-model="counterpartyForm.role" value="buyer" class="w-4 h-4 text-indigo-600">
+                            <span class="text-sm text-gray-700">🛒 Покупатель</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Поставщики видны в приходе, покупатели - в отгрузке</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button @click="saveCounterparty" 
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition">
+                    <i class="fas fa-save mr-2"></i> Сохранить
+                </button>
+                <button @click="counterpartyModalOpen = false" 
+                        class="flex-1 border border-gray-300 hover:bg-gray-50 font-medium py-2 rounded-lg transition">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка для спецификаций -->
+    <div x-show="assemblyModalOpen"
+        x-transition.opacity
+        class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center"
+        @click.away="assemblyModalOpen = false"
+        style="display: none;">
+        
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 mx-4 max-h-[90vh] overflow-y-auto" @click.stop>
+            <h3 class="text-xl font-bold mb-4" x-text="editingAssembly ? '✏️ Редактировать спецификацию' : '➕ Новая спецификация'"></h3>
+            
+            <!-- Основная информация -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Название спецификации *</label>
+                    <input type="text" 
+                        x-model="assemblyForm.name" 
+                        placeholder="Например: Подарочный набор" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Выходной продукт *</label>
+                        <select x-model="assemblyForm.output_product_id" 
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Выберите товар</option>
+                            <template x-for="product in products" :key="product.id">
+                                <option :value="product.id" x-text="product.name + ' (' + (product.unit || '') + ')'"></option>
+                            </template>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Количество на выходе *</label>
+                        <input type="number" 
+                            x-model.number="assemblyForm.output_quantity" 
+                            min="1" 
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                
+                <!-- Компоненты -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Компоненты *</label>
+                        <button type="button" 
+                                @click="addAssemblyComponent()" 
+                                class="text-indigo-600 hover:text-indigo-700 text-sm flex items-center gap-1">
+                            <i class="fas fa-plus-circle"></i> Добавить компонент
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <template x-for="(comp, index) in assemblyForm.components" :key="index">
+                            <div class="flex gap-2 items-end bg-white p-2 rounded border border-gray-200">
+                                <div class="flex-1">
+                                    <label class="block text-xs text-gray-500 mb-1">Товар</label>
+                                    <select x-model="comp.product_id" 
+                                            class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                                        <option value="">Выберите товар</option>
+                                        <template x-for="product in products" :key="product.id">
+                                            <option :value="product.id" x-text="product.name + ' (' + (product.unit || '') + ')'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="w-32">
+                                    <label class="block text-xs text-gray-500 mb-1">Количество</label>
+                                    <input type="number" 
+                                        x-model.number="comp.quantity" 
+                                        min="1" 
+                                        class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                                </div>
+                                <button type="button" 
+                                        @click="removeAssemblyComponent(index)" 
+                                        class="text-red-500 hover:text-red-700 mb-0.5 p-1">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </template>
+                        
+                        <div x-show="assemblyForm.components.length === 0" class="text-center py-4 text-gray-400 text-sm">
+                            <i class="fas fa-cubes mb-1"></i>
+                            <p>Нет компонентов. Нажмите "Добавить компонент"</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Укажите товары, которые входят в состав</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button @click="saveAssembly" 
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition">
+                    <i class="fas fa-save mr-2"></i> Сохранить
+                </button>
+                <button @click="assemblyModalOpen = false" 
+                        class="flex-1 border border-gray-300 hover:bg-gray-50 font-medium py-2 rounded-lg transition">
+                    Отмена
+                </button>
+            </div>
         </div>
     </div>
 </div>

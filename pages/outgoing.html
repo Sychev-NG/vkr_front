@@ -8,7 +8,7 @@
         <div class="p-6 space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Склад *</label>
-                <select x-model="outgoingForm.warehouse_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+                <select x-model.number="outgoingForm.warehouse_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                     <option value="">Выберите склад</option>
                     <template x-for="wh in warehouses">
                         <option :value="wh.id" x-text="wh.name"></option>
@@ -18,7 +18,7 @@
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Товар *</label>
-                <select x-model="outgoingForm.product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+                <select x-model.number="outgoingForm.product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                     <option value="">Выберите товар</option>
                     <template x-for="p in products">
                         <option :value="p.id" x-text="p.name + ' (в наличии: ' + formatNumber(getStockQuantity(p.id, outgoingForm.warehouse_id)) + ')'"></option>
@@ -29,17 +29,17 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Количество *</label>
-                    <input type="number" x-model="outgoingForm.quantity" step="any" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+                    <input type="number" x-model.number="outgoingForm.quantity" step="any" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Цена продажи (₽)</label>
-                    <input type="number" x-model="outgoingForm.price" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+                    <input type="number" x-model.number="outgoingForm.price" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                 </div>
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Покупатель</label>
-                <select x-model="outgoingForm.counterparty_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+                <select x-model.number="outgoingForm.counterparty_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                     <option value="">Не выбран</option>
                     <template x-for="cp in counterparties.filter(c => c.role === 'buyer')">
                         <option :value="cp.id" x-text="cp.name"></option>

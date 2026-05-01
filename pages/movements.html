@@ -7,10 +7,10 @@
     <!-- Фильтры -->
     <div class="p-4 bg-gray-50 border-b border-gray-200">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input type="date" x-model="movementFilters.from" @change="loadMovements()" 
+            <!-- <input type="date" x-model="movementFilters.from" @change="loadMovements()" 
                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <input type="date" x-model="movementFilters.to" @change="loadMovements()" 
-                   class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                   class="border border-gray-300 rounded-lg px-3 py-2 text-sm"> -->
             <select x-model="movementFilters.product_id" @change="loadMovements()" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="">Все товары</option>
                 <template x-for="p in products">
@@ -35,7 +35,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Склад</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Тип</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">Количество</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">Себестоимость</th>
+                    <!-- <th class="px-6 py-3 text-right text-xs font-medium text-gray-500">Себестоимость</th> -->
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -55,7 +55,7 @@
                         <td class="px-6 py-4 text-sm text-right font-mono" 
                             :class="(m.stock_movement || m.quantity) > 0 ? 'text-green-600' : 'text-red-600'"
                             x-text="formatNumber(m.stock_movement || m.quantity)"></td>
-                        <td class="px-6 py-4 text-sm text-right text-gray-600" x-text="m.unit_cost ? formatNumber(m.unit_cost) + ' ₽' : '—'"></td>
+                        <!-- <td class="px-6 py-4 text-sm text-right text-gray-600" x-text="m.unit_cost ? formatNumber(m.unit_cost) + ' ₽' : '—'"></td> -->
                     </tr>
                 </template>
             </tbody>

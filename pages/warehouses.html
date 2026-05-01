@@ -4,7 +4,7 @@
             <h2 class="text-2xl font-bold text-gray-800">🏢 Склады</h2>
             <p class="text-sm text-gray-500 mt-1">Управление складскими помещениями</p>
         </div>
-        <button @click="createWarehouse()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md">
+        <button @click="openWarehouseModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-md">
             <i class="fas fa-plus"></i> Добавить склад
         </button>
     </div>
@@ -15,12 +15,15 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h3 class="font-semibold text-lg text-gray-800" x-text="wh.name"></h3>
-                        <p class="text-sm text-gray-500 mt-1" x-text="wh.address || 'Адрес не указан'"></p>
+                        <p class="text-sm text-gray-500 mt-1" x-text="wh.address"></p>
                         <p class="text-xs text-gray-400 mt-2">ID: <span x-text="wh.id"></span></p>
                     </div>
-                    <button @click="deleteWarehouse(wh.id)" class="text-red-400 hover:text-red-600 transition">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                <!-- <button @click="openWarehouseModal(wh)" class="text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-edit"></i>
+                </button> -->
+                <button @click="deleteWarehouse(wh.id)" class="text-red-400 hover:text-red-600">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
                 </div>
             </div>
         </template>

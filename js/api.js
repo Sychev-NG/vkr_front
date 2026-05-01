@@ -73,6 +73,7 @@ const API = {
     getAssemblies: () => API.request('/assemblies'),
     createAssembly: (data) => API.request('/assemblies', { method: 'POST', body: JSON.stringify(data) }),
     deleteAssembly: (id) => API.request(`/assemblies/${id}`, { method: 'DELETE' }),
+    updateAssembly: (id, data) => API.request(`/assemblies/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     
     // ========== Операции ==========
     incoming: (data) => API.request('/incoming', { method: 'POST', body: JSON.stringify(data) }),
