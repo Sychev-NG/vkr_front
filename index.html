@@ -32,24 +32,6 @@
                 </button>
             </template>
         </nav>
-        
-        <!-- Статус бар в сайдбаре (как был раньше)
-        <div class="p-4 text-xs border-t border-indigo-700 space-y-2">
-            <div class="flex justify-between">
-                <span class="text-indigo-300">Сервер:</span>
-                <span class="font-mono text-indigo-200 truncate" x-text="API.baseUrl"></span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-indigo-300">Статус:</span>
-                <span :class="{'text-green-400': serverStatus, 'text-red-400': !serverStatus}" 
-                      x-text="serverStatus ? '● Онлайн' : '● Офлайн'"></span>
-            </div>
-            <button @click="refreshAll" :disabled="loading"
-                    class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-3 py-1.5 rounded text-white text-sm transition flex items-center justify-center gap-2">
-                <i class="fas fa-sync-alt" :class="{'animate-spin': loading}"></i>
-                <span x-text="loading ? 'Загрузка...' : 'Обновить'"></span>
-            </button>
-        </div> -->
     </div>
 
     <!-- Контейнер для динамических страниц -->
@@ -292,7 +274,6 @@
 </div>
 
 <script src="js/api.js"></script>
-<!-- <script src="js/state.js"></script> -->
 <script src="js/app.js"></script>
 </body>
 </html>
