@@ -128,7 +128,7 @@ function warehouseApp() {
             { id: 'incoming', name: 'Приход', icon: 'fas fa-download', badge: false },
             { id: 'outgoing', name: 'Отгрузка', icon: 'fas fa-upload', badge: false },
             { id: 'assembly', name: 'Сборка', icon: 'fas fa-cogs', badge: false },
-            { id: 'sales', name: 'Продажи', icon: 'fas fa-chart-line', badge: false }, 
+            { id: 'cogs', name: 'Продажи', icon: 'fas fa-chart-line', badge: false }, 
             { id: 'alerts', name: 'Уведомления', icon: 'fas fa-bell', badge: false }
         ],
         
