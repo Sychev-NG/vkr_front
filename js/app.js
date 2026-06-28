@@ -197,7 +197,7 @@ function warehouseApp() {
                 }
                 
                 if (this.activePage === 'cogs') {
-                    await this.loadCOGS();
+                    await this.loadSalesReport();
                 }
                 
                 // Обновляем бейджи на меню
@@ -254,9 +254,9 @@ function warehouseApp() {
             if (pageId === 'movements') {
                 await this.loadMovements();
             }
-            // if (pageId === 'cogs') {
-            //     await this.loadCOGS();
-            // }
+            if (pageId === 'cogs') {
+                await this.loadSalesReport();
+            }
             if (pageId === 'sales') {
                 await this.loadSalesReport();
             }
